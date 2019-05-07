@@ -1,6 +1,6 @@
 .header_container {
-   
-   background-image: linear-gradient(to left, rgb(216, 154, 154), white);
+  border-bottom: 2px solid #29862e;
+   background: rgb(216, 154, 154);
 }
 
 h1 {
