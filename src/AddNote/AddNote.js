@@ -1,48 +1,59 @@
 import React, { Component } from 'react'
 import NotefulForm from '../NotefulForm/NotefulForm'
-import NotefulContext from '../NotefulContext/NotefulContext'
-import config from '../config'
-
+import './AddNote.css';
+import config from '../config';
+import NotefulContext from '../context';
 
 export default class AddNote extends Component {
-  static defaultProps = {
-    history: {
-      push: () => { }
-    },
+  constructor(props){
+    super(props)
+    this.state = {
+    folderId:'',
+    name: '',
+    content: ''
   }
+}
   static contextType = NotefulContext;
+  
+  chooseId(folderId) {
+    this.setState({folderId: Number(folderId)})};
 
-  handleSubmit = e => {
-    e.preventDefault()
-    const newNote = {
-      name: e.target['note-name'].value,
-      content: e.target['note-content'].value,
-      folderId: e.target['note-folder-id'].value,
+  setName(name){
+    this.setState({name})};
+
+  setContent(content){
+    this.setState({content});
+  }
+
+  handleSubmit =(e) => {
+    e.preventDefault();
+    const newNote={
+      name: this.state.name,
+      content: this.state.content,
+      folderid: this.state.folderId,
       modified: new Date(),
-    }
-    fetch(`${config.API_ENDPOINT}/notes`, {
+    };
+    fetch(`${config.API_ENDPOINT}/notes`,{
       method: 'POST',
       headers: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
       },
       body: JSON.stringify(newNote),
     })
-      .then(res => {
-        if (!res.ok)
-          return res.json().then(e => Promise.reject(e))
-        return res.json()
+    .then(res =>{
+      if(res.ok) {
+        return res.json()}
+      else  throw new Error(res.status);
       })
-      .then(note => {
-        this.context.addNote(note)
-        this.props.history.push(`/folder/${note.folderId}`)
-      })
-      .catch(error => {
-        console.error({ error })
-      })
-  }
+    .then(note => {
+      this.context.addNote(note)
+      this.props.history.push('/')
+    })
+    .catch(error => console.error({error}) );
+  };
 
   render() {
-    const { folders=[] } = this.context
+    const { folders } = this.props;
     return (
       <section className='AddNote'>
         <h2>Create a note</h2>
@@ -51,19 +62,19 @@ export default class AddNote extends Component {
             <label htmlFor='note-name-input'>
               Name
             </label>
-            <input type='text' id='note-name-input' name='note-name' />
+            <input type='text' id='note-name-input' onChange={(e)=> this.setName(e.target.value)}/>
           </div>
           <div className='field'>
             <label htmlFor='note-content-input'>
               Content
             </label>
-            <textarea id='note-content-input' name='note-content' />
+            <input type='text' id='note-content-input' onChange={(e)=> this.setContent(e.target.value)} />
           </div>
           <div className='field'>
             <label htmlFor='note-folder-select'>
               Folder
             </label>
-            <select id='note-folder-select' name='note-folder-id'>
+            <select id='note-folder-select' onChange={(e)=> this.chooseId(e.target.value)}>
               <option value={null}>...</option>
               {folders.map(folder =>
                 <option key={folder.id} value={folder.id}>

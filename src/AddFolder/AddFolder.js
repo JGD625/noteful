@@ -1,44 +1,46 @@
-import React from 'react'
+import React, { Component } from 'react'
 import NotefulForm from '../NotefulForm/NotefulForm'
-import NotefulContext from '../NotefulContext/NotefulContext'
-import config from '../config'
+import './AddFolder.css'
+import config from '../config';
+import NotefulContext from '../context';
 
-
-
-
-export default class AddFolder extends React.Component {
-  static defaultProps = {
-    history: {
-      push: () => { }
-    },
+export default class AddFolder extends Component {
+  constructor(props){
+    super(props)
+    this.state = {
+    name: ''
   }
+}
+
   static contextType = NotefulContext;
 
-  handleSubmit = e => {
-    e.preventDefault()
-    const folder = {
-      name: e.target['folder-name'].value
-    }
-    fetch(`${config.API_ENDPOINT}/folders`, {
+  setName(name){
+    this.setState({name})
+  };
+
+  handleSubmit =(e) => {
+    e.preventDefault();
+    const newFolder={
+      name: this.state.name,
+    };
+    fetch(`${config.API_ENDPOINT}/folders/`,{
       method: 'POST',
       headers: {
-        'content-type': 'application/json'
+        'content-type': 'application/json',
       },
-      body: JSON.stringify(folder),
+      body: JSON.stringify(newFolder),
     })
-      .then(res => {
-        if (!res.ok)
-          return res.json().then(e => Promise.reject(e))
-        return res.json()
+    .then(res =>{
+      if(res.ok) {
+        return res.json()}
+      else  throw new Error(res.status);
       })
-      .then(folder => {
-        this.context.addFolder(folder)
-        this.props.history.push(`/folder/${folder.id}`)
-      })
-      .catch(error => {
-        console.error({ error })
-      })
-  }
+    .then(folder => {
+      this.context.addFolder(folder)
+      this.props.history.push('/')
+    })
+    .catch(error => console.error({error}) );
+  };
 
   render() {
     return (
@@ -49,7 +51,7 @@ export default class AddFolder extends React.Component {
             <label htmlFor='folder-name-input'>
               Name
             </label>
-            <input type='text' id='folder-name-input' name='folder-name' />
+            <input type='text' id='folder-name-input' onChange={(e)=> this.setName(e.target.value)}/>
           </div>
           <div className='buttons'>
             <button type='submit'>

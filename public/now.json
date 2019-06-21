@@ -1,7 +1,7 @@
 {
     "version": 2,
-    "alias": "noteful-app",
-    "name": "noteful-app",
+    "alias": "jgd625-bookmarks-app",
+    "name": "noteful",
     "routes": [
         {
           "src": "^/static/(.*)",
@@ -13,4 +13,3 @@
         }
     ]
   }
-
